@@ -7,7 +7,9 @@ import (
 	"github.com/golang/glog"
 )
 
-type EchoServer struct{}
+type EchoServer struct {
+	spb.UnimplementedEchoServiceServer
+}
 
 var _ spb.EchoServiceServer = (*EchoServer)(nil)
 

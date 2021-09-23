@@ -1,8 +1,7 @@
 # Go specific
 /vendor/
-
-# Bazel
-/bazel-*
+/server
+/server.exe
 
 # IDEs
 /.idea/
