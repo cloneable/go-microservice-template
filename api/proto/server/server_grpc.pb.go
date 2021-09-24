@@ -95,5 +95,5 @@ var EchoService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "server.proto",
+	Metadata: "api/proto/server/server.proto",
 }
