@@ -97,5 +97,5 @@ var Healthz_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/proto/healthz/healthz.proto",
+	Metadata: "healthz/healthz.proto",
 }
