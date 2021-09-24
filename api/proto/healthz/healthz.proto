@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package go_microservice_template.healthz;
+
+option go_package = "github.com/cloneable/go-microservice-template/api/proto/healthz";
+
+import "google/api/annotations.proto";
+import "google/api/httpbody.proto";
+import "google/protobuf/empty.proto";
+
+service Healthz {
+    rpc Check(google.protobuf.Empty) returns (google.api.HttpBody) {
+        option (google.api.http) = {
+            get: "/healthz"
+        };
+    }
+}

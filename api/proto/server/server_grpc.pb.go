@@ -39,21 +39,19 @@ func (c *echoServiceClient) Echo(ctx context.Context, in *EchoRequest, opts ...g
 }
 
 // EchoServiceServer is the server API for EchoService service.
-// All implementations must embed UnimplementedEchoServiceServer
+// All implementations should embed UnimplementedEchoServiceServer
 // for forward compatibility
 type EchoServiceServer interface {
 	Echo(context.Context, *EchoRequest) (*EchoResponse, error)
-	mustEmbedUnimplementedEchoServiceServer()
 }
 
-// UnimplementedEchoServiceServer must be embedded to have forward compatible implementations.
+// UnimplementedEchoServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedEchoServiceServer struct {
 }
 
 func (UnimplementedEchoServiceServer) Echo(context.Context, *EchoRequest) (*EchoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Echo not implemented")
 }
-func (UnimplementedEchoServiceServer) mustEmbedUnimplementedEchoServiceServer() {}
 
 // UnsafeEchoServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to EchoServiceServer will
