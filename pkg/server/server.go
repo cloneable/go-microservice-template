@@ -6,27 +6,26 @@ import (
 	"net"
 	"net/http"
 
-	healthzpb "github.com/cloneable/go-microservice-template/api/proto/healthz"
-	serverpb "github.com/cloneable/go-microservice-template/api/proto/server"
-	"github.com/cloneable/go-microservice-template/pkg/echoserver"
 	"github.com/golang/glog"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	httpbodypb "google.golang.org/genproto/googleapis/api/httpbody"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Options struct {
-	GrpcPort       int
+	GRPCPort       int
 	RestPort       int
 	MonitoringPort int
 }
 
-func Run(ctx context.Context, opt Options) error {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", opt.GrpcPort))
+type ServiceRegistrationCallback func(s grpc.ServiceRegistrar)
+
+type GatewayRegistration func(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error
+
+func Run(ctx context.Context, opt Options, registerServices ServiceRegistrationCallback, gwReg []GatewayRegistration) error {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", opt.GRPCPort))
 	if err != nil {
 		return fmt.Errorf("failed to listen on port: %w", err)
 	}
@@ -39,11 +38,14 @@ func Run(ctx context.Context, opt Options) error {
 			serverMetrics.StreamServerInterceptor(),
 		)),
 	)
-	healthzpb.RegisterHealthzServer(s, &HealthzServer{})
-	serverpb.RegisterEchoServiceServer(s, &echoserver.EchoServer{})
 
+	registerServices(s)
 	grpc_prometheus.Register(s)
-	monitoringServer := &http.Server{Handler: promhttp.HandlerFor(metricsRegistry, promhttp.HandlerOpts{Registry: metricsRegistry}), Addr: fmt.Sprintf("0.0.0.0:%d", opt.MonitoringPort)}
+
+	monitoringServer := &http.Server{
+		Handler: promhttp.HandlerFor(metricsRegistry, promhttp.HandlerOpts{Registry: metricsRegistry}),
+		Addr:    fmt.Sprintf("0.0.0.0:%d", opt.MonitoringPort),
+	}
 	go func() {
 		if err := monitoringServer.ListenAndServe(); err != nil {
 			glog.Fatal("Unable to start a monitoring http server.")
@@ -71,13 +73,10 @@ func Run(ctx context.Context, opt Options) error {
 	}
 
 	gateway := runtime.NewServeMux()
-	err = healthzpb.RegisterHealthzHandler(ctx, gateway, conn)
-	if err != nil {
-		return fmt.Errorf("failed to register healthz handler with gateway: %w", err)
-	}
-	err = serverpb.RegisterEchoServiceHandler(ctx, gateway, conn)
-	if err != nil {
-		return fmt.Errorf("failed to register gateway: %w", err)
+	for _, regFunc := range gwReg {
+		if err := regFunc(ctx, gateway, conn); err != nil {
+			return fmt.Errorf("failed to register service with gateway: %w", err)
+		}
 	}
 
 	gatewayServer := &http.Server{
@@ -89,12 +88,4 @@ func Run(ctx context.Context, opt Options) error {
 	glog.Fatal(gatewayServer.ListenAndServe())
 
 	return nil
-}
-
-var OK_BODY = []byte("ok\r\n")
-
-type HealthzServer struct{}
-
-func (s *HealthzServer) Check(ctx context.Context, _ *emptypb.Empty) (*httpbodypb.HttpBody, error) {
-	return &httpbodypb.HttpBody{ContentType: "text/plain;charset=utf-8", Data: OK_BODY}, nil
 }
