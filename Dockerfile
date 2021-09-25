@@ -14,5 +14,6 @@ COPY --from=buildenv /build/out/server /
 
 USER 1000:1000
 EXPOSE 8080/tcp
-EXPOSE 8090/tcp
-CMD ["/server", "-grpc_port", "8080", "-rest_port", "8090"]
+EXPOSE 9090/tcp
+EXPOSE 12345/tcp
+CMD ["/server", "-rest_port", "8080", "-monitoring_port", "9090", "-grpc_port", "12345"]
