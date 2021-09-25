@@ -2,11 +2,11 @@
 // source: healthz/healthz.proto
 
 /*
-Package healthz is a reverse proxy.
+Package healthz_proto is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package healthz
+package healthz_proto
 
 import (
 	"context"
