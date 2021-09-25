@@ -28,7 +28,7 @@ func main() {
 
 	err := server.Run(ctx, server.Options{
 		GRPCPort:       *grpcPort,
-		RestPort:       *restPort,
+		RESTPort:       *restPort,
 		MonitoringPort: *monitoringPort,
 		RegisterServices: func(s grpc.ServiceRegistrar) {
 			healthz_proto.RegisterHealthzServer(s, &healthz.HealthzServer{})

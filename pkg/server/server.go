@@ -8,7 +8,6 @@ import (
 
 	"github.com/golang/glog"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
@@ -16,7 +15,7 @@ import (
 
 type Options struct {
 	GRPCPort         int
-	RestPort         int
+	RESTPort         int
 	MonitoringPort   int
 	RegisterServices ServiceRegistrationCallback
 	GatewayServices  []GatewayRegistration
@@ -27,12 +26,12 @@ type ServiceRegistrationCallback func(s grpc.ServiceRegistrar)
 type GatewayRegistration func(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error
 
 func Run(ctx context.Context, opt Options) error {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", opt.GRPCPort))
+	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":%d", opt.GRPCPort))
 	if err != nil {
 		return fmt.Errorf("failed to listen on port: %w", err)
 	}
 
-	s := grpc.NewServer(
+	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			serverMetrics.UnaryServerInterceptor(),
 		)),
@@ -42,9 +41,9 @@ func Run(ctx context.Context, opt Options) error {
 	)
 
 	if opt.RegisterServices != nil {
-		opt.RegisterServices(s)
+		opt.RegisterServices(grpcServer)
 	}
-	grpc_prometheus.Register(s)
+	serverMetrics.InitializeMetrics(grpcServer)
 
 	monitoringServer := &http.Server{
 		Handler: promhttp.HandlerFor(metricsRegistry, promhttp.HandlerOpts{Registry: metricsRegistry}),
@@ -57,12 +56,12 @@ func Run(ctx context.Context, opt Options) error {
 	}()
 
 	go func() {
-		glog.Fatal(s.Serve(lis))
+		glog.Fatal(grpcServer.Serve(grpcListener))
 	}()
 
 	conn, err := grpc.DialContext(
 		ctx,
-		lis.Addr().String(),
+		grpcListener.Addr().String(),
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
@@ -84,7 +83,7 @@ func Run(ctx context.Context, opt Options) error {
 	}
 
 	gatewayServer := &http.Server{
-		Addr:    fmt.Sprintf(":%d", opt.RestPort),
+		Addr:    fmt.Sprintf(":%d", opt.RESTPort),
 		Handler: gateway,
 	}
 
