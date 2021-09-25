@@ -30,11 +30,14 @@ func main() {
 		GRPCPort:       *grpcPort,
 		RestPort:       *restPort,
 		MonitoringPort: *monitoringPort,
-	}, func(s grpc.ServiceRegistrar) {
-		healthz_proto.RegisterHealthzServer(s, &healthz.HealthzServer{})
-		server_proto.RegisterEchoServiceServer(s, &echoserver.EchoServer{})
-	}, []server.GatewayRegistration{
-		healthz_proto.RegisterHealthzHandler, server_proto.RegisterEchoServiceHandler,
+		RegisterServices: func(s grpc.ServiceRegistrar) {
+			healthz_proto.RegisterHealthzServer(s, &healthz.HealthzServer{})
+			server_proto.RegisterEchoServiceServer(s, &echoserver.EchoServer{})
+		},
+		GatewayServices: []server.GatewayRegistration{
+			healthz_proto.RegisterHealthzHandler,
+			server_proto.RegisterEchoServiceHandler,
+		},
 	})
 
 	if err != nil {

@@ -15,16 +15,18 @@ import (
 )
 
 type Options struct {
-	GRPCPort       int
-	RestPort       int
-	MonitoringPort int
+	GRPCPort         int
+	RestPort         int
+	MonitoringPort   int
+	RegisterServices ServiceRegistrationCallback
+	GatewayServices  []GatewayRegistration
 }
 
 type ServiceRegistrationCallback func(s grpc.ServiceRegistrar)
 
 type GatewayRegistration func(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error
 
-func Run(ctx context.Context, opt Options, registerServices ServiceRegistrationCallback, gwReg []GatewayRegistration) error {
+func Run(ctx context.Context, opt Options) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", opt.GRPCPort))
 	if err != nil {
 		return fmt.Errorf("failed to listen on port: %w", err)
@@ -39,7 +41,9 @@ func Run(ctx context.Context, opt Options, registerServices ServiceRegistrationC
 		)),
 	)
 
-	registerServices(s)
+	if opt.RegisterServices != nil {
+		opt.RegisterServices(s)
+	}
 	grpc_prometheus.Register(s)
 
 	monitoringServer := &http.Server{
@@ -73,7 +77,7 @@ func Run(ctx context.Context, opt Options, registerServices ServiceRegistrationC
 	}
 
 	gateway := runtime.NewServeMux()
-	for _, regFunc := range gwReg {
+	for _, regFunc := range opt.GatewayServices {
 		if err := regFunc(ctx, gateway, conn); err != nil {
 			return fmt.Errorf("failed to register service with gateway: %w", err)
 		}
