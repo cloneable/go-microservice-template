@@ -9,7 +9,7 @@ ADD pkg pkg
 RUN mkdir -p /build/out
 RUN CGO_ENABLED=0 go build -ldflags "-w" -o /build/out ./...
 
-FROM gcr.io/distroless/base
+FROM scratch
 COPY --from=buildenv /build/out/server /
 
 USER 1000:1000
