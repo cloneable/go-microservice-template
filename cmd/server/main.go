@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
 
 	healthz_proto "github.com/cloneable/go-microservice-template/api/proto/healthz"
 	server_proto "github.com/cloneable/go-microservice-template/api/proto/server"
 	"github.com/cloneable/go-microservice-template/pkg/handler/echoserver"
 	"github.com/cloneable/go-microservice-template/pkg/handler/healthz"
 	"github.com/cloneable/go-microservice-template/pkg/server"
-	"github.com/golang/glog"
 	"google.golang.org/grpc"
 )
 
@@ -21,18 +21,21 @@ var (
 
 func main() {
 	ctx := context.Background()
-
 	flag.Parse()
-	defer glog.Flush()
-	glog.Info("Server starting up...")
 
-	err := server.Run(ctx, server.Options{
+	srv, err := server.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	srv.Logger().Info("Server starting.")
+
+	err = srv.Run(ctx, server.Options{
 		GRPCPort:       *grpcPort,
 		RESTPort:       *restPort,
 		MonitoringPort: *monitoringPort,
 		RegisterServices: func(s grpc.ServiceRegistrar) {
 			healthz_proto.RegisterHealthzServer(s, &healthz.HealthzServer{})
-			server_proto.RegisterEchoServiceServer(s, &echoserver.EchoServer{})
+			server_proto.RegisterEchoServiceServer(s, &echoserver.EchoServer{Logger: srv.Logger()})
 		},
 		GatewayServices: []server.GatewayRegistration{
 			healthz_proto.RegisterHealthzHandler,
@@ -41,6 +44,6 @@ func main() {
 	})
 
 	if err != nil {
-		glog.Fatal(err)
+		log.Fatal(err)
 	}
 }

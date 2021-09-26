@@ -6,10 +6,11 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/golang/glog"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
 
@@ -25,7 +26,21 @@ type ServiceRegistrationCallback func(s grpc.ServiceRegistrar)
 
 type GatewayRegistration func(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error
 
-func Run(ctx context.Context, opt Options) error {
+type Service struct {
+	logger *zap.SugaredLogger
+}
+
+func New() (*Service, error) {
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create zap logger: %w", err)
+	}
+	return &Service{
+		logger: logger.Sugar(),
+	}, nil
+}
+
+func (s *Service) Run(ctx context.Context, opt Options) error {
 	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":%d", opt.GRPCPort))
 	if err != nil {
 		return fmt.Errorf("failed to listen on port: %w", err)
@@ -34,9 +49,11 @@ func Run(ctx context.Context, opt Options) error {
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			serverMetrics.UnaryServerInterceptor(),
+			grpc_zap.UnaryServerInterceptor(s.logger.Desugar()),
 		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			serverMetrics.StreamServerInterceptor(),
+			grpc_zap.StreamServerInterceptor(s.logger.Desugar()),
 		)),
 	)
 
@@ -51,12 +68,12 @@ func Run(ctx context.Context, opt Options) error {
 	}
 	go func() {
 		if err := monitoringServer.ListenAndServe(); err != nil {
-			glog.Fatal("Unable to start a monitoring http server.")
+			s.logger.Fatal("Unable to start a monitoring http server.")
 		}
 	}()
 
 	go func() {
-		glog.Fatal(grpcServer.Serve(grpcListener))
+		s.logger.Fatal(grpcServer.Serve(grpcListener))
 	}()
 
 	conn, err := grpc.DialContext(
@@ -87,8 +104,12 @@ func Run(ctx context.Context, opt Options) error {
 		Handler: gateway,
 	}
 
-	glog.Info("Server running.")
-	glog.Fatal(gatewayServer.ListenAndServe())
+	s.logger.Info("Server running.")
+	s.logger.Fatal(gatewayServer.ListenAndServe())
 
 	return nil
+}
+
+func (s *Service) Logger() *zap.SugaredLogger {
+	return s.logger
 }
