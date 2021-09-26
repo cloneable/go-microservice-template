@@ -16,4 +16,6 @@ USER 1000:1000
 EXPOSE 8080/tcp
 EXPOSE 9090/tcp
 EXPOSE 12345/tcp
-CMD ["/server", "-rest_port", "8080", "-monitoring_port", "9090", "-grpc_port", "12345"]
+EXPOSE 6060/tcp
+
+CMD ["/server", "-rest_port", "8080", "-monitoring_port", "9090", "-grpc_port", "12345", "-pprof_port", "6060"]
