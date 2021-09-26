@@ -1,18 +1,21 @@
 FROM golang:1.17.1 AS buildenv
 WORKDIR /build/src
-COPY go.mod .
-COPY go.sum .
-ADD api api
-ADD cmd cmd
-ADD pkg pkg
+COPY . .
+COPY .git .
 
+ENV CGO_ENABLED=0
 RUN mkdir -p /build/out
-RUN CGO_ENABLED=0 go build -ldflags "-w" -o /build/out ./...
+RUN go build \
+    -trimpath \
+    -ldflags "-s -w" \
+    -installsuffix cgo \
+    -o /build/out \
+    ./...
 
 FROM scratch
 COPY --from=buildenv /build/out/server /
 
-USER 1000:1000
+USER 1001:1001
 EXPOSE 8080/tcp
 EXPOSE 9090/tcp
 EXPOSE 12345/tcp

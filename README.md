@@ -28,3 +28,6 @@ Optional tools useful during development:
 - Redis
 - RabbitMQ
 - ORM
+- Use upx for the binary?
+  - `RUN apt-get update && apt-get -y install upx`
+  - `RUN upx -q -9 /build/out/server`
