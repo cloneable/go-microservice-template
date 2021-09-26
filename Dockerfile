@@ -4,6 +4,7 @@ COPY . .
 COPY .git .
 
 ENV CGO_ENABLED=0
+ENV GO111MODULE=on
 RUN mkdir -p /build/out
 RUN go build \
     -trimpath \
@@ -11,11 +12,17 @@ RUN go build \
     -installsuffix cgo \
     -o /build/out \
     ./...
+RUN go test \
+    -v \
+    -trimpath \
+    -ldflags "-s -w" \
+    -installsuffix cgo \
+    ./...
 
 FROM scratch
 COPY --from=buildenv /build/out/server /
 
-USER 1001:1001
+USER 10000:10000
 EXPOSE 8080/tcp
 EXPOSE 9090/tcp
 EXPOSE 12345/tcp
