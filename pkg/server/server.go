@@ -30,17 +30,14 @@ type Service struct {
 	logger *zap.SugaredLogger
 }
 
-func New() (*Service, error) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create zap logger: %w", err)
-	}
+func New(logger *zap.Logger) (*Service, error) {
 	return &Service{
 		logger: logger.Sugar(),
 	}, nil
 }
 
 func (s *Service) Run(ctx context.Context, opt Options) error {
+	s.logger.Info("Server starting.")
 	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":%d", opt.GRPCPort))
 	if err != nil {
 		return fmt.Errorf("failed to listen on port: %w", err)

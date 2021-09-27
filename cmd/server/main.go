@@ -12,6 +12,7 @@ import (
 	"github.com/cloneable/go-microservice-template/pkg/handler/echoserver"
 	"github.com/cloneable/go-microservice-template/pkg/handler/healthz"
 	"github.com/cloneable/go-microservice-template/pkg/server"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	_ "net/http/pprof"
@@ -28,16 +29,22 @@ func main() {
 	ctx := context.Background()
 	flag.Parse()
 
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Fatalf("Failed to create zap logger: %v", err)
+	}
+	undoRedirect := zap.RedirectStdLog(logger)
+	defer undoRedirect()
+
 	go func() {
 		// pprof endpoint
-		log.Println(http.ListenAndServe(fmt.Sprintf(":%d", *pprofPort), nil))
+		logger.Sugar().Info(http.ListenAndServe(fmt.Sprintf(":%d", *pprofPort), nil))
 	}()
 
-	srv, err := server.New()
+	srv, err := server.New(logger)
 	if err != nil {
-		log.Fatal(err)
+		logger.Sugar().Fatalf("Failed to create server: %v", err)
 	}
-	srv.Logger().Info("Server starting.")
 
 	err = srv.Run(ctx, server.Options{
 		GRPCPort:       *grpcPort,
@@ -45,7 +52,7 @@ func main() {
 		MonitoringPort: *monitoringPort,
 		RegisterServices: func(s grpc.ServiceRegistrar) {
 			healthz_proto.RegisterHealthzServer(s, &healthz.HealthzServer{})
-			server_proto.RegisterEchoServiceServer(s, &echoserver.EchoServer{Logger: srv.Logger()})
+			server_proto.RegisterEchoServiceServer(s, &echoserver.EchoServer{Logger: logger.Sugar()})
 		},
 		GatewayServices: []server.GatewayRegistration{
 			healthz_proto.RegisterHealthzHandler,
@@ -54,6 +61,6 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		logger.Sugar().Fatalf("Failed to start server: %v", err)
 	}
 }
