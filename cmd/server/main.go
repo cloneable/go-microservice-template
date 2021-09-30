@@ -41,6 +41,11 @@ func main() {
 		logger.Sugar().Info(http.ListenAndServe(fmt.Sprintf(":%d", *pprofPort), nil))
 	}()
 
+	tp, err := server.NewTracerProvider()
+	if err != nil {
+		logger.Sugar().Fatalf("Failed to create tracer provider: %v", err)
+	}
+
 	srv, err := server.New(logger)
 	if err != nil {
 		logger.Sugar().Fatalf("Failed to create server: %v", err)
@@ -52,7 +57,7 @@ func main() {
 		MonitoringPort: *monitoringPort,
 		RegisterServices: func(s grpc.ServiceRegistrar) {
 			healthz_proto.RegisterHealthzServer(s, &healthz.HealthzServer{})
-			server_proto.RegisterEchoServiceServer(s, &echoserver.EchoServer{Logger: logger.Sugar()})
+			server_proto.RegisterEchoServiceServer(s, echoserver.New(logger.Sugar(), tp.Tracer("echoserver")))
 		},
 		GatewayServices: []server.GatewayRegistration{
 			healthz_proto.RegisterHealthzHandler,

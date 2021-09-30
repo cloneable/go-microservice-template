@@ -10,8 +10,11 @@ import (
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 type Options struct {
@@ -45,10 +48,12 @@ func (s *Service) Run(ctx context.Context, opt Options) error {
 
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			otelgrpc.UnaryServerInterceptor(),
 			serverMetrics.UnaryServerInterceptor(),
 			grpc_zap.UnaryServerInterceptor(s.logger.Desugar()),
 		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			otelgrpc.StreamServerInterceptor(),
 			serverMetrics.StreamServerInterceptor(),
 			grpc_zap.StreamServerInterceptor(s.logger.Desugar()),
 		)),
@@ -79,9 +84,11 @@ func (s *Service) Run(ctx context.Context, opt Options) error {
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
+			otelgrpc.UnaryClientInterceptor(),
 			clientMetrics.UnaryClientInterceptor(),
 		)),
 		grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
+			otelgrpc.StreamClientInterceptor(),
 			clientMetrics.StreamClientInterceptor(),
 		)),
 	)
@@ -89,7 +96,9 @@ func (s *Service) Run(ctx context.Context, opt Options) error {
 		return fmt.Errorf("failed to dial grpc server: %w", err)
 	}
 
-	gateway := runtime.NewServeMux()
+	gateway := runtime.NewServeMux(runtime.WithMetadata(func(ctx context.Context, req *http.Request) metadata.MD {
+		return metadata.Pairs("correlation-id", "moo")
+	}))
 	for _, regFunc := range opt.GatewayServices {
 		if err := regFunc(ctx, gateway, conn); err != nil {
 			return fmt.Errorf("failed to register service with gateway: %w", err)
@@ -98,7 +107,7 @@ func (s *Service) Run(ctx context.Context, opt Options) error {
 
 	gatewayServer := &http.Server{
 		Addr:    fmt.Sprintf(":%d", opt.RESTPort),
-		Handler: gateway,
+		Handler: otelhttp.NewHandler(gateway, "gateway"),
 	}
 
 	s.logger.Info("Server running.")
