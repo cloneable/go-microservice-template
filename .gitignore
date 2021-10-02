@@ -1,14 +1,10 @@
 # Go specific
 /vendor/
-/server
-/server.exe
+/build/
+
+# Tooling
+.*
+!/.github/
 
 # IDEs
-/.idea/
-/.vscode/
-/*.*-workspace
-
-# OS
-.DS_Store
-*.bak
-*.tmp
+/*.*workspace
