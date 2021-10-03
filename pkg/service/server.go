@@ -9,7 +9,6 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
@@ -20,7 +19,6 @@ import (
 type Options struct {
 	GRPCPort         int
 	RESTPort         int
-	MonitoringPort   int
 	RegisterServices ServiceRegistrationCallback
 	GatewayServices  []GatewayRegistration
 }
@@ -63,17 +61,8 @@ func (s *Service) Run(ctx context.Context, opt Options) error {
 	if opt.RegisterServices != nil {
 		opt.RegisterServices(grpcServer)
 	}
-	serverMetrics.InitializeMetrics(grpcServer)
 
-	monitoringServer := &http.Server{
-		Handler: promhttp.HandlerFor(metricsRegistry, promhttp.HandlerOpts{Registry: metricsRegistry}),
-		Addr:    fmt.Sprintf("0.0.0.0:%d", opt.MonitoringPort),
-	}
-	go func() {
-		if err := monitoringServer.ListenAndServe(); err != nil {
-			s.logger.Fatal("Unable to start a monitoring http server.")
-		}
-	}()
+	serverMetrics.InitializeMetrics(grpcServer)
 
 	go func() {
 		s.logger.Fatal(grpcServer.Serve(grpcListener))
