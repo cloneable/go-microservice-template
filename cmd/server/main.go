@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"syscall"
 
 	healthz_proto "github.com/cloneable/go-microservice-template/api/proto/healthz"
 	server_proto "github.com/cloneable/go-microservice-template/api/proto/server"
@@ -28,6 +29,8 @@ var (
 )
 
 func main() {
+	syscall.Umask(0077)
+
 	ctx := context.Background()
 	flag.Parse()
 

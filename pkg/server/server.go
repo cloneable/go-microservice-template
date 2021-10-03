@@ -41,6 +41,7 @@ func New(logger *zap.Logger) (*Service, error) {
 
 func (s *Service) Run(ctx context.Context, opt Options) error {
 	s.logger.Info("Server starting.")
+	// grpcListener, err := net.Listen("unix", "/tmp/gateway.sock")
 	grpcListener, err := net.Listen("tcp", fmt.Sprintf(":%d", opt.GRPCPort))
 	if err != nil {
 		return fmt.Errorf("failed to listen on port: %w", err)
@@ -80,7 +81,11 @@ func (s *Service) Run(ctx context.Context, opt Options) error {
 
 	conn, err := grpc.DialContext(
 		ctx,
-		grpcListener.Addr().String(),
+		"<not used>",
+		grpc.WithContextDialer(func(ctx context.Context, _ string) (net.Conn, error) {
+			var dialer net.Dialer
+			return dialer.DialContext(ctx, grpcListener.Addr().Network(), grpcListener.Addr().String())
+		}),
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
