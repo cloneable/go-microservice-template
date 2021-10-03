@@ -13,6 +13,7 @@ import (
 	"github.com/cloneable/go-microservice-template/pkg/handler/healthz"
 	"github.com/cloneable/go-microservice-template/pkg/server"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 
@@ -34,7 +35,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create zap logger: %v", err)
 	}
-	undoRedirect := zap.RedirectStdLog(logger)
+	undoRedirect, err := zap.RedirectStdLogAt(logger, zapcore.DebugLevel)
+	if err != nil {
+		log.Fatalf("Failed to redirect std/log output: %v", err)
+	}
 	defer undoRedirect()
 
 	grpclog.SetLoggerV2(server.NewZapDepthLogger(logger))
