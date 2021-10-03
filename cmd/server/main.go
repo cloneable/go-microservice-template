@@ -10,8 +10,8 @@ import (
 
 	healthz_proto "github.com/cloneable/go-microservice-template/api/proto/healthz"
 	server_proto "github.com/cloneable/go-microservice-template/api/proto/server"
-	"github.com/cloneable/go-microservice-template/pkg/handler/echoserver"
-	"github.com/cloneable/go-microservice-template/pkg/handler/healthz"
+	"github.com/cloneable/go-microservice-template/internal/handler/echoserver"
+	"github.com/cloneable/go-microservice-template/internal/handler/healthz"
 	"github.com/cloneable/go-microservice-template/pkg/server"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
