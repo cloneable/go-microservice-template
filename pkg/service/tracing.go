@@ -9,7 +9,7 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
-func NewTracerProvider() (*sdktrace.TracerProvider, error) {
+func newTracerProvider() (*sdktrace.TracerProvider, error) {
 	exporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
 	if err != nil {
 		return nil, fmt.Errorf("cannot create stdout exporter: %w", err)

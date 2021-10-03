@@ -4,19 +4,14 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
-	"syscall"
 
 	healthz_proto "github.com/cloneable/go-microservice-template/api/proto/healthz"
 	server_proto "github.com/cloneable/go-microservice-template/api/proto/server"
 	"github.com/cloneable/go-microservice-template/internal/handler/echoserver"
 	"github.com/cloneable/go-microservice-template/internal/handler/healthz"
 	"github.com/cloneable/go-microservice-template/pkg/service"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/grpclog"
 
 	_ "net/http/pprof"
 )
@@ -29,32 +24,15 @@ var (
 )
 
 func main() {
-	syscall.Umask(0077)
-
 	ctx := context.Background()
 	flag.Parse()
 
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Fatalf("Failed to create zap logger: %v", err)
-	}
-	undoRedirect, err := zap.RedirectStdLogAt(logger, zapcore.DebugLevel)
-	if err != nil {
-		log.Fatalf("Failed to redirect std/log output: %v", err)
-	}
-	defer undoRedirect()
-
-	grpclog.SetLoggerV2(service.NewZapDepthLogger(logger))
+	logger, tp, err := service.Init(ctx)
 
 	go func() {
 		// pprof endpoint
 		logger.Sugar().Info(http.ListenAndServe(fmt.Sprintf(":%d", *pprofPort), nil))
 	}()
-
-	tp, err := service.NewTracerProvider()
-	if err != nil {
-		logger.Sugar().Fatalf("Failed to create tracer provider: %v", err)
-	}
 
 	srv, err := service.New(logger)
 	if err != nil {
