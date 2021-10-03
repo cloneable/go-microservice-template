@@ -1,4 +1,4 @@
-package server
+package service
 
 import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"

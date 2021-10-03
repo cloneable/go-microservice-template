@@ -12,7 +12,7 @@ import (
 	server_proto "github.com/cloneable/go-microservice-template/api/proto/server"
 	"github.com/cloneable/go-microservice-template/internal/handler/echoserver"
 	"github.com/cloneable/go-microservice-template/internal/handler/healthz"
-	"github.com/cloneable/go-microservice-template/pkg/server"
+	"github.com/cloneable/go-microservice-template/pkg/service"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
@@ -44,24 +44,24 @@ func main() {
 	}
 	defer undoRedirect()
 
-	grpclog.SetLoggerV2(server.NewZapDepthLogger(logger))
+	grpclog.SetLoggerV2(service.NewZapDepthLogger(logger))
 
 	go func() {
 		// pprof endpoint
 		logger.Sugar().Info(http.ListenAndServe(fmt.Sprintf(":%d", *pprofPort), nil))
 	}()
 
-	tp, err := server.NewTracerProvider()
+	tp, err := service.NewTracerProvider()
 	if err != nil {
 		logger.Sugar().Fatalf("Failed to create tracer provider: %v", err)
 	}
 
-	srv, err := server.New(logger)
+	srv, err := service.New(logger)
 	if err != nil {
 		logger.Sugar().Fatalf("Failed to create server: %v", err)
 	}
 
-	err = srv.Run(ctx, server.Options{
+	err = srv.Run(ctx, service.Options{
 		GRPCPort:       *grpcPort,
 		RESTPort:       *restPort,
 		MonitoringPort: *monitoringPort,
@@ -69,7 +69,7 @@ func main() {
 			healthz_proto.RegisterHealthzServer(s, &healthz.HealthzServer{})
 			server_proto.RegisterEchoServiceServer(s, echoserver.New(logger.Sugar(), tp.Tracer("echoserver")))
 		},
-		GatewayServices: []server.GatewayRegistration{
+		GatewayServices: []service.GatewayRegistration{
 			healthz_proto.RegisterHealthzHandler,
 			server_proto.RegisterEchoServiceHandler,
 		},
