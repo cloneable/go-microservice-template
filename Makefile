@@ -21,16 +21,16 @@ test:
 # Make release binaries.
 # Used in Dockerfile.
 .PHONY: release
+release: export CGO_ENABLED=0
 release:
 	@mkdir -p $(BUILD_OUTPUT)
-	@export CGO_ENABLED=0
 	go build $(RELEASE_FLAGS) -o $(BUILD_OUTPUT) ./...
 
 # Run all tests with same flags as release build.
 # Used in Dockerfile.
 .PHONY: release-test
+release-test: export CGO_ENABLED=0
 release-test:
-	@export CGO_ENABLED=0
 	go test $(RELEASE_FLAGS) ./...
 
 # Add/remove modules to/from go.mod/go.sum and download direct deps.
