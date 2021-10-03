@@ -14,6 +14,7 @@ import (
 	"github.com/cloneable/go-microservice-template/pkg/server"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/grpclog"
 
 	_ "net/http/pprof"
 )
@@ -35,6 +36,8 @@ func main() {
 	}
 	undoRedirect := zap.RedirectStdLog(logger)
 	defer undoRedirect()
+
+	grpclog.SetLoggerV2(server.NewZapDepthLogger(logger))
 
 	go func() {
 		// pprof endpoint
