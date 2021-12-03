@@ -1,3 +1,4 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 
@@ -19,4 +20,12 @@ go_proto_library(
     proto = ":server_proto",
     visibility = ["//visibility:public"],
     deps = ["@go_googleapis//google/api:annotations_go_proto"],
+)
+
+go_library(
+    name = "server",
+    srcs = ["dummy.go"],
+    embed = [":server_go_proto"],
+    importpath = "github.com/cloneable/go-microservice-template/api/proto/server",
+    visibility = ["//visibility:public"],
 )

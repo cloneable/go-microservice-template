@@ -6,7 +6,7 @@ go_library(
     importpath = "github.com/cloneable/go-microservice-template/internal/handler/echoserver",
     visibility = ["//:__subpackages__"],
     deps = [
-        "//api/proto/server:server_go_proto",
+        "//api/proto/server",
         "@io_opentelemetry_go_otel_trace//:trace",
         "@org_uber_go_zap//:zap",
     ],

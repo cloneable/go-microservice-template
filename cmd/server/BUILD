@@ -6,8 +6,8 @@ go_library(
     importpath = "github.com/cloneable/go-microservice-template/cmd/server",
     visibility = ["//visibility:private"],
     deps = [
-        "//api/proto/healthz:healthz_go_proto",
-        "//api/proto/server:server_go_proto",
+        "//api/proto/healthz",
+        "//api/proto/server",
         "//internal/handler/echoserver",
         "//internal/handler/healthz",
         "//pkg/service",
