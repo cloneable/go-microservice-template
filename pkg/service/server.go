@@ -23,7 +23,7 @@ type Options struct {
 	GatewayServices  []GatewayRegistration
 }
 
-type ServiceRegistrationCallback func(s grpc.ServiceRegistrar)
+type ServiceRegistrationCallback func(s *grpc.Server)
 
 type GatewayRegistration func(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error
 

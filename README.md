@@ -1,5 +1,15 @@
 # go-microservice-template
 
+## Build
+
+```shell
+go install github.com/bazelbuild/bazelisk@latest
+```
+
+```shell
+bazelisk build //...
+```
+
 ## Development Setup
 
 You need the `go` tool infrastructure for development and building.

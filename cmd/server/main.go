@@ -32,7 +32,7 @@ func main() {
 	err = srv.Run(ctx, service.Options{
 		GRPCPort: *grpcPort,
 		RESTPort: *restPort,
-		RegisterServices: func(s grpc.ServiceRegistrar) {
+		RegisterServices: func(s *grpc.Server) {
 			healthz_proto.RegisterHealthzServer(s, &healthz.HealthzServer{})
 			server_proto.RegisterEchoServiceServer(s, echoserver.New(logger.Sugar(), tp.Tracer("echoserver")))
 		},

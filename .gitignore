@@ -1,10 +1,14 @@
 # Go specific
 /vendor/
-/build/
+
+# Bazel
+/bazel-*
 
 # Tooling
 .*
+!.*ignore
 !/.github/
+
 
 # IDEs
 /*.*workspace

@@ -1,0 +1,36 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "service",
+    srcs = [
+        "init.go",
+        "logging.go",
+        "metrics.go",
+        "server.go",
+        "tracing.go",
+    ],
+    importpath = "github.com/cloneable/go-microservice-template/pkg/service",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_grpc_ecosystem_go_grpc_middleware//:go-grpc-middleware",
+        "@com_github_grpc_ecosystem_go_grpc_middleware//logging/zap",
+        "@com_github_grpc_ecosystem_go_grpc_prometheus//:go-grpc-prometheus",
+        "@com_github_grpc_ecosystem_grpc_gateway_v2//runtime",
+        "@com_github_prometheus_client_golang//prometheus",
+        "@com_github_prometheus_client_golang//prometheus/collectors",
+        "@com_github_prometheus_client_golang//prometheus/promhttp",
+        "@io_opentelemetry_go_contrib_instrumentation_google_golang_org_grpc_otelgrpc//:otelgrpc",
+        "@io_opentelemetry_go_contrib_instrumentation_net_http_otelhttp//:otelhttp",
+        "@io_opentelemetry_go_otel//:otel",
+        "@io_opentelemetry_go_otel//propagation",
+        "@io_opentelemetry_go_otel_exporters_stdout_stdouttrace//:stdouttrace",
+        "@io_opentelemetry_go_otel_sdk//trace",
+        "@io_opentelemetry_go_otel_trace//:trace",
+        "@org_golang_google_grpc//:go_default_library",
+        "@org_golang_google_grpc//grpclog",
+        "@org_golang_google_grpc//metadata",
+        "@org_uber_go_zap//:zap",
+        "@org_uber_go_zap//zapcore",
+        "@org_uber_go_zap//zapgrpc",
+    ],
+)
