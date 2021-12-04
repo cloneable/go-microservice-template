@@ -1,5 +1,7 @@
 # go-microservice-template
 
+Go + gRPC + gRPC-Gateway + Bazel + Tiltfile
+
 ## Setup
 
 ```shell
