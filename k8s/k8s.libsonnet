@@ -1,23 +1,36 @@
 {
+  Namespace(name):: {
+    apiVersion: "v1",
+    kind: "Namespace",
+    metadata: {
+      name: name,
+      labels: {
+        "kubernetes.io/metadata.name": name,
+      },
+    },
+  },
+
   Labels(name):: {
     "app.kubernetes.io/name": name,
     "app.kubernetes.io/instance": name,
   },
 
-  ServiceAccount(name):: {
+  ServiceAccount(name, namespace):: {
     apiVersion: "v1",
     kind: "ServiceAccount",
     metadata: {
       name: name,
+      namespace: namespace,
       labels: $.Labels(name),
     },
   },
 
-  Service(name):: {
+  Service(name, namespace):: {
     apiVersion: "v1",
     kind: "Service",
     metadata: {
       name: name,
+      namespace: namespace,
       labels: $.Labels(name),
     },
   },
@@ -29,11 +42,12 @@
     protocol: protocol,
   },
 
-  Deployment(name):: {
+  Deployment(name, namespace):: {
     apiVersion: "apps/v1",
     kind: "Deployment",
     metadata: {
       name: name,
+      namespace: namespace,
       labels: $.Labels(name),
     },
   },

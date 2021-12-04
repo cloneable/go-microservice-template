@@ -1,9 +1,13 @@
 local k8s = import "k8s.libsonnet";
 
-[
-  k8s.ServiceAccount("go-microservice-template"),
+local Namespace = "dev";
 
-  k8s.Service("go-microservice-template") {
+[
+  k8s.Namespace(Namespace),
+
+  k8s.ServiceAccount("go-microservice-template", Namespace),
+
+  k8s.Service("go-microservice-template", Namespace) {
     spec: {
       type: "ClusterIP",
       ports: [
@@ -15,7 +19,7 @@ local k8s = import "k8s.libsonnet";
     },
   },
 
-  k8s.Deployment("go-microservice-template") {
+  k8s.Deployment("go-microservice-template", Namespace) {
     spec: {
       replicas: 1,
       selector: {
@@ -23,8 +27,7 @@ local k8s = import "k8s.libsonnet";
       },
       template: {
         metadata: {
-          labels:
-            k8s.Labels("go-microservice-template"),
+          labels: k8s.Labels("go-microservice-template"),
         },
         spec: {
           serviceAccountName: "go-microservice-template",
