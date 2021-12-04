@@ -1,67 +1,30 @@
-local Labels = {
-  "app.kubernetes.io/name": "go-microservice-template",
-  "app.kubernetes.io/instance": "go-microservice-template",
-};
-
-local ServiceAccount(name) = {
-  apiVersion: "v1",
-  kind: "ServiceAccount",
-  metadata: {
-    name: name,
-    labels: Labels,
-  },
-};
-
-local Service(name) = {
-  apiVersion: "v1",
-  kind: "Service",
-  metadata: {
-    name: name,
-    labels: Labels,
-  },
-};
-
-local Port(port, name, protocol="TCP") = {
-  port: port,
-  targetPort: port,
-  name: name,
-  protocol: protocol,
-};
-
-local Deployment(name) = {
-  apiVersion: "apps/v1",
-  kind: "Deployment",
-  metadata: {
-    name: name,
-    labels: Labels,
-  },
-};
+local k8s = import "k8s.libsonnet";
 
 [
-  ServiceAccount("go-microservice-template"),
+  k8s.ServiceAccount("go-microservice-template"),
 
-  Service("go-microservice-template") {
+  k8s.Service("go-microservice-template") {
     spec: {
       type: "ClusterIP",
       ports: [
-        Port(8080, "rest-api"),
-        Port(9090, "grpc-api"),
-        Port(12345, "service"),
+        k8s.Port(8080, "rest-api"),
+        k8s.Port(9090, "grpc-api"),
+        k8s.Port(12345, "service"),
       ],
-      selector: Labels,
+      selector: k8s.Labels("go-microservice-template"),
     },
   },
 
-  Deployment("go-microservice-template") {
+  k8s.Deployment("go-microservice-template") {
     spec: {
       replicas: 1,
       selector: {
-        matchLabels: Labels,
+        matchLabels: k8s.Labels("go-microservice-template"),
       },
       template: {
         metadata: {
           labels:
-            Labels,
+            k8s.Labels("go-microservice-template"),
         },
         spec: {
           serviceAccountName: "go-microservice-template",
