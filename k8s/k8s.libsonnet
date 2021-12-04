@@ -22,7 +22,7 @@
     },
   },
 
-  Port(port, name, protocol="TCP"):: {
+  ServicePort(port, name, protocol="TCP"):: {
     port: port,
     targetPort: port,
     name: name,

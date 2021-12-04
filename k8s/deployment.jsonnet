@@ -7,9 +7,9 @@ local k8s = import "k8s.libsonnet";
     spec: {
       type: "ClusterIP",
       ports: [
-        k8s.Port(8080, "rest-api"),
-        k8s.Port(9090, "grpc-api"),
-        k8s.Port(12345, "service"),
+        k8s.ServicePort(8080, "rest-api"),
+        k8s.ServicePort(9090, "grpc-api"),
+        k8s.ServicePort(12345, "service"),
       ],
       selector: k8s.Labels("go-microservice-template"),
     },
