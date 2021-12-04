@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: go-microservice-template
+  labels:
+    app.kubernetes.io/name: go-microservice-template
+    app.kubernetes.io/instance: go-microservice-template
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: go-microservice-template
+      app.kubernetes.io/instance: go-microservice-template
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: go-microservice-template
+        app.kubernetes.io/instance: go-microservice-template
+    spec:
+      serviceAccountName: go-microservice-template
+      containers:
+        - name: go-microservice-template
+          image: "cloneable/go-microservice-template"
+          imagePullPolicy: Always
+          ports:
+            - name: rest
+              containerPort: 8080
+              protocol: TCP
+            - name: grpc
+              containerPort: 9090
+              protocol: TCP
+            - name: service
+              containerPort: 12345
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: service
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: service

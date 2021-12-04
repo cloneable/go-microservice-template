@@ -37,6 +37,7 @@ container_image(
         ":app_tar",
     ],
     user = "app:app",
+    visibility = ["//visibility:public"],
     workdir = "/app",
 )
 

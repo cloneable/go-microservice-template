@@ -95,3 +95,27 @@ container_pull(
     repository = "library/alpine",
     tag = "3",
 )
+
+### Kubernetes
+
+http_archive(
+    name = "io_bazel_rules_k8s",
+    sha256 = "51f0977294699cd547e139ceff2396c32588575588678d2054da167691a227ef",
+    strip_prefix = "rules_k8s-0.6",
+    urls = ["https://github.com/bazelbuild/rules_k8s/archive/v0.6.tar.gz"],
+)
+
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults", "k8s_repositories")
+
+k8s_repositories()
+
+load("@io_bazel_rules_k8s//k8s:k8s_go_deps.bzl", k8s_go_deps = "deps")
+
+k8s_go_deps()
+
+k8s_defaults(
+    name = "k8s_deploy",
+    cluster = "kind-kind",
+    kind = "deployment",
+    namespace = "{BUILD_USER}",
+)
