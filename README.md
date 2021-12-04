@@ -11,6 +11,7 @@ brew install kubectl
 brew install ctlptl
 brew install kind
 brew install tilt
+brew install jsonnet
 ```
 
 ```shell
@@ -35,6 +36,10 @@ tilt down
 ```shell
 bazelisk build -c opt --stamp --strip=always --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //container:image.tar
 docker load -i bazel-bin/container/image.tar
+```
+
+```shell
+jsonnetfmt --string-style d -i *.jsonnet
 ```
 
 ## To-Do's
