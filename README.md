@@ -7,7 +7,8 @@ go install github.com/bazelbuild/bazelisk@latest
 ```
 
 ```shell
-bazelisk build //...
+bazelisk build -c opt --stamp --strip=always --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //container:image.tar
+docker load -i bazel-bin/container/image.tar
 ```
 
 ## Development Setup

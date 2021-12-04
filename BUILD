@@ -4,7 +4,10 @@ load("@bazel_gazelle//:def.bzl", "gazelle")
 # gazelle:build_file_name BUILD
 # gazelle:proto default
 
-gazelle(name = "gazelle")
+gazelle(
+    name = "gazelle",
+    prefix = "github.com/cloneable/go-microservice-template",
+)
 
 gazelle(
     name = "gazelle-update-repos",
