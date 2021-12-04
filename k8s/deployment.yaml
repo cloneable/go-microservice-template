@@ -76,8 +76,8 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: service
+              port: rest
           readinessProbe:
             httpGet:
               path: /healthz
-              port: service
+              port: rest
