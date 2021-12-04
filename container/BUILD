@@ -10,11 +10,13 @@ container_push(
     image = ":image",
     registry = "localhost:5005",
     repository = "cloneable/go-microservice-template",
-    tag = "latest",
+    stamp = 0,
+    tag = "dev",
 )
 
 container_image(
     name = "image",
+    architecture = "amd64",
     base = "@alpine//image",
     cmd = [
         "/app/server",
@@ -27,6 +29,7 @@ container_image(
     ],
     empty_dirs = ["/tmp"],  # TODO: 1777
     env = {"TMPDIR": "/tmp"},
+    operating_system = "linux",
     ports = [
         "12345",
         "8080",

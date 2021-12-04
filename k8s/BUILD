@@ -10,9 +10,9 @@ k8s_objects(
 
 k8s_object(
     name = "deployment",
-    images = {
-        "localhost:5005/cloneable/go-microservice-template:latest": "//container:image",
-    },
+    # images = {
+    #     "cloneable/go-microservice-template:dev": "//container:image",
+    # },
     kind = "deployment",
     template = ":deployment.yaml",
 )
