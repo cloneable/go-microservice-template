@@ -1,0 +1,83 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: go-microservice-template
+  labels:
+    app.kubernetes.io/name: go-microservice-template
+    app.kubernetes.io/instance: go-microservice-template
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-microservice-template
+  labels:
+    app.kubernetes.io/name: go-microservice-template
+    app.kubernetes.io/instance: go-microservice-template
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: rest-api
+    - port: 9090
+      targetPort: 9090
+      protocol: TCP
+      name: grpc-api
+    - port: 12345
+      targetPort: 12345
+      protocol: TCP
+      name: service
+  selector:
+    app.kubernetes.io/name: go-microservice-template
+    app.kubernetes.io/instance: go-microservice-template
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-microservice-template
+  labels:
+    app.kubernetes.io/name: go-microservice-template
+    app.kubernetes.io/instance: go-microservice-template
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: go-microservice-template
+      app.kubernetes.io/instance: go-microservice-template
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: go-microservice-template
+        app.kubernetes.io/instance: go-microservice-template
+    spec:
+      serviceAccountName: go-microservice-template
+      securityContext:
+        {}
+      containers:
+        - name: go-microservice-template
+          securityContext:
+            {}
+          image: cloneable/go-microservice-template:dev
+          imagePullPolicy: Always
+          ports:
+            - name: rest
+              containerPort: 8080
+              protocol: TCP
+            - name: grpc
+              containerPort: 9090
+              protocol: TCP
+            - name: service
+              containerPort: 12345
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: rest
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: rest

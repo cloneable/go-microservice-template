@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package go_microservice_template.server.v1;
 
-option go_package = "github.com/cloneable/go-microservice-template/api/proto/server;server_proto";
+option go_package = "github.com/cloneable/go-microservice-template/api/proto/server;server";
 
 import "google/api/annotations.proto";
 

@@ -1,19 +1,41 @@
 # go-microservice-template
 
-## Development Setup
+Go + gRPC + gRPC-Gateway + Bazel + Tiltfile
 
-You need the `go` tool infrastructure for development and building.
-`protoc` if you want to make changes to `.proto` files and regenerate the proto code.
+## Setup
 
-Other project-specific tools written in Go can be installed with `make install-tools`.
-Make sure `$GOPATH/bin` is in your `$PATH`.
+```shell
+go install github.com/bazelbuild/bazelisk@latest
 
-Optional tools useful during development:
+brew install kubectl
+brew install ctlptl
+brew install kind
+brew install tilt
+```
 
-- `dlv`, the Delve debugger
-- `shadow`, a `go vet` tool detecting shadowing or variables
-- `gopls`, the Go language server used by IDEs
-- `gotip`, the bleeding-edge version of the Go tools
+```shell
+ctlptl create registry ctlptl-registry --port=5005
+ctlptl create cluster kind --registry=ctlptl-registry
+```
+
+## Commands
+
+```shell
+bazelisk build //...
+bazelisk test //...
+```
+
+```shell
+tilt up
+^C
+
+tilt down
+```
+
+```shell
+bazelisk build -c opt --stamp --strip=always --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //container:image.tar
+docker load -i bazel-bin/container/image.tar
+```
 
 ## To-Do's
 
