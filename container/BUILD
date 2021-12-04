@@ -1,7 +1,17 @@
 load("@rules_pkg//:pkg.bzl", "pkg_tar")
+load("@io_bazel_rules_docker//container:container.bzl", "container_push")
 load("@io_bazel_rules_docker//container:image.bzl", "container_image")
-load("@io_bazel_rules_docker//contrib:passwd.bzl", "passwd_entry", "passwd_file")
 load("@io_bazel_rules_docker//contrib:group.bzl", "group_entry", "group_file")
+load("@io_bazel_rules_docker//contrib:passwd.bzl", "passwd_entry", "passwd_file")
+
+container_push(
+    name = "push",
+    format = "Docker",
+    image = ":image",
+    registry = "localhost:5005",
+    repository = "cloneable/go-microservice-template",
+    tag = "latest",
+)
 
 container_image(
     name = "image",
@@ -15,7 +25,7 @@ container_image(
         "-grpc_port",
         "9090",
     ],
-    empty_dirs = ["/tmp"],
+    empty_dirs = ["/tmp"],  # TODO: 1777
     env = {"TMPDIR": "/tmp"},
     ports = [
         "12345",
