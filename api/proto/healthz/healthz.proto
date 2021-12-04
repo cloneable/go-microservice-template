@@ -9,9 +9,14 @@ import "google/api/httpbody.proto";
 import "google/protobuf/empty.proto";
 
 service Healthz {
-    rpc Check(google.protobuf.Empty) returns (google.api.HttpBody) {
+    rpc Alive(google.protobuf.Empty) returns (google.api.HttpBody) {
         option (google.api.http) = {
-            get: "/healthz"
+            get: "/healthz/alive"
+        };
+    }
+    rpc Ready(google.protobuf.Empty) returns (google.api.HttpBody) {
+        option (google.api.http) = {
+            get: "/healthz/ready"
         };
     }
 }

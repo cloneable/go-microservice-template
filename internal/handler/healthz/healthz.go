@@ -11,6 +11,10 @@ var okBody = []byte("ok\r\n")
 
 type HealthzServer struct{}
 
-func (s *HealthzServer) Check(ctx context.Context, _ *emptypb.Empty) (*httpbodypb.HttpBody, error) {
-	return &httpbodypb.HttpBody{ContentType: "text/plain;charset=utf-8", Data: okBody}, nil
+func (s *HealthzServer) Alive(ctx context.Context, _ *emptypb.Empty) (*httpbodypb.HttpBody, error) {
+	return &httpbodypb.HttpBody{ContentType: "text/plain; charset=UTF-8", Data: okBody}, nil
+}
+
+func (s *HealthzServer) Ready(ctx context.Context, _ *emptypb.Empty) (*httpbodypb.HttpBody, error) {
+	return &httpbodypb.HttpBody{ContentType: "text/plain; charset=UTF-8", Data: okBody}, nil
 }

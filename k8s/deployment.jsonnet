@@ -54,13 +54,13 @@ local k8s = import "k8s.libsonnet";
               ],
               livenessProbe: {
                 httpGet: {
-                  path: "/healthz",
+                  path: "/healthz/alive",
                   port: "rest",
                 },
               },
               readinessProbe: {
                 httpGet: {
-                  path: "/healthz",
+                  path: "/healthz/ready",
                   port: "rest",
                 },
               },
