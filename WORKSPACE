@@ -113,9 +113,10 @@ load("@io_bazel_rules_k8s//k8s:k8s_go_deps.bzl", k8s_go_deps = "deps")
 
 k8s_go_deps()
 
+# load("@k8s_deployment//:defaults.bzl", "k8s_deployment")
 k8s_defaults(
-    name = "k8s_deploy",
+    name = "k8s_deployment",
     cluster = "kind-kind",
-    kind = "deployment",
+    kind = "Deployment",
     namespace = "{BUILD_USER}",
 )
