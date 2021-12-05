@@ -13,5 +13,4 @@ gazelle(
         "-prune",
     ],
     command = "update-repos",
-    prefix = "github.com/cloneable/go-microservice-template",
 )
