@@ -29,13 +29,13 @@ http_archive(
 )
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-load("//:go_dependencies.bzl", "go_dependencies")
+load("//:go_deps.bzl", "go_dependencies")
 
-# gazelle:repository_macro go_dependencies.bzl%go_dependencies
+# gazelle:repository_macro go_deps.bzl%go_dependencies
 go_dependencies()
 
 # Must come after go_dependencies, so gazelle deps don't override causing conflicts.
-gazelle_dependencies(go_repository_default_config = "@//:WORKSPACE")
+gazelle_dependencies(go_repository_default_config = "@//:WORKSPACE.bazel")
 
 ### Proto
 
