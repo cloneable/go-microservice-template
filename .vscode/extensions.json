@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "bazelbuild.vscode-bazel",
+        "heptio.jsonnet",
+        "golang.go",
+        "zxh404.vscode-proto3"
+    ]
+}
