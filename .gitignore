@@ -11,8 +11,6 @@
 
 # VSCode
 !/.vscode/
-/.vscode/**
-!/.vscode/extensions.json
 
 # IDEs
 /*.*workspace

@@ -1,4 +1,4 @@
-BAZEL_RUN = "bazelisk run --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64"
+BAZEL_RUN = "bazel run --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64"
 
 def bazel_k8s(target):
   return local("{bazel_run} {target}".format(bazel_run=BAZEL_RUN, target=target))
