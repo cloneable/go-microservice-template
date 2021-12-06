@@ -44,17 +44,14 @@ jsonnetfmt --string-style d -i *.jsonnet
 
 ## To-Do's
 
-- Example unit/integration/e2e tests
-- Profiling
-- Coverage
-- OpenTelemetry?
-- Auth
-- GitHub Actions
-- Add Docker commands to Makefile?
-- Tracing/correlation ID plumbing
-- Redis
-- RabbitMQ
-- ORM
-- Use upx for the binary?
-  - `RUN apt-get update && apt-get -y install upx`
-  - `RUN upx -q -9 /build/out/server`
+- [ ] helm charts + jsonnet
+- [ ] Example unit/integration/e2e tests
+- [ ] Profiling
+- [ ] Coverage
+- [x] OpenTelemetry?
+- [ ] Auth
+- [x] GitHub Actions
+- [ ] Add Docker commands to Makefile?
+- [x] Tracing/correlation ID plumbing
+- [ ] ORM: Ent?
+- [ ] Use upx for the binary?
