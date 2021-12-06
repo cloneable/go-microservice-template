@@ -1,4 +1,5 @@
 load("@rules_pkg//:pkg.bzl", "pkg_tar")
+load("@rules_pkg//:mappings.bzl", "pkg_attributes", "pkg_mkdirs")
 load("@io_bazel_rules_docker//container:container.bzl", "container_push")
 load("@io_bazel_rules_docker//container:image.bzl", "container_image")
 load("@io_bazel_rules_docker//contrib:group.bzl", "group_entry", "group_file")
@@ -17,7 +18,7 @@ container_push(
 container_image(
     name = "image",
     architecture = "amd64",
-    base = "@alpine//image",
+    #base = "@alpine//image",
     cmd = [
         "/app/server",
         "-port",
@@ -27,7 +28,6 @@ container_image(
         "-grpc_port",
         "9090",
     ],
-    empty_dirs = ["/tmp"],  # TODO: 1777
     env = {"TMPDIR": "/tmp"},
     operating_system = "linux",
     ports = [
@@ -38,6 +38,7 @@ container_image(
     tars = [
         ":passwd_tar",
         ":app_tar",
+        ":dirs_tar",
     ],
     user = "app:app",
     visibility = ["//visibility:public"],
@@ -111,4 +112,21 @@ pkg_tar(
     ],
     mode = "0o755",
     package_dir = "app",
+)
+
+pkg_tar(
+    name = "dirs_tar",
+    srcs = [
+        ":tmp_dir",
+    ],
+)
+
+pkg_mkdirs(
+    name = "tmp_dir",
+    attributes = pkg_attributes(
+        group = "root",
+        mode = "1777",
+        user = "root",
+    ),
+    dirs = ["/tmp"],
 )
