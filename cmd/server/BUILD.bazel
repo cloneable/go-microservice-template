@@ -18,5 +18,7 @@ go_library(
 go_binary(
     name = "server",
     embed = [":server_lib"],
+    pure = "on",
+    static = "on",
     visibility = ["//visibility:public"],
 )
