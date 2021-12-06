@@ -1,11 +1,12 @@
 local k8s = import "k8s.libsonnet";
 
+local ServiceAccount = "go-microservice-template";
 local Namespace = "dev";
 
 [
   k8s.Namespace(Namespace),
 
-  k8s.ServiceAccount("go-microservice-template", Namespace),
+  k8s.ServiceAccount(ServiceAccount, Namespace),
 
   k8s.Service("go-microservice-template", Namespace) {
     spec: {
@@ -30,12 +31,22 @@ local Namespace = "dev";
           labels: k8s.Labels("go-microservice-template"),
         },
         spec: {
-          serviceAccountName: "go-microservice-template",
-          securityContext: {},
+          serviceAccountName: ServiceAccount,
+          securityContext: {
+            fsGroup: 2000,
+          },
           containers: [
             {
               name: "go-microservice-template",
-              securityContext: {},
+              securityContext: {
+                runAsUser: 1000,
+                runAsGroup: 1000,
+                capabilities: {
+                  drop: ["ALL"],
+                },
+                readOnlyRootFilesystem: true,
+                runAsNonRoot: true,
+              },
               image: "cloneable/go-microservice-template:dev",
               imagePullPolicy: "Always",
               ports: [
