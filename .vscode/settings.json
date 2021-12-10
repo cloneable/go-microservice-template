@@ -14,8 +14,6 @@
       "-bazel-testlogs",
       "-bazel-go-microservice-template"
     ],
-    "formatting.gofumpt": true,
-    "formatting.local": "github.com/cloneable/go-microservice-template",
     "ui.completion.usePlaceholders": true,
     "ui.semanticTokens": true,
     "ui.codelenses": {
