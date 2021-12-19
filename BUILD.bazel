@@ -16,6 +16,9 @@ gazelle(
     command = "update-repos",
 )
 
+# gazelle:resolve proto proto validate/validate.proto @com_envoyproxy_protoc_gen_validate//validate:validate_proto
+# gazelle:resolve proto go validate/validate.proto @com_envoyproxy_protoc_gen_validate//validate:validate_go_proto
+
 go_proto_compiler(
     name = "pgv_plugin_go",
     options = ["lang=go"],
