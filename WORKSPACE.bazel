@@ -17,7 +17,7 @@ load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_depe
 
 go_rules_dependencies()
 
-go_register_toolchains(version = "1.17.4")
+go_register_toolchains(version = "1.17.5")
 
 http_archive(
     name = "bazel_gazelle",
@@ -54,6 +54,21 @@ load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_
 rules_proto_dependencies()
 
 rules_proto_toolchains()
+
+http_archive(
+    name = "com_envoyproxy_protoc_gen_validate",
+    sha256 = "b02da533c77023238c556982507b9a71afc850478b637a7a13ec13f311efa5c0",
+    strip_prefix = "protoc-gen-validate-0.6.2",
+    urls = ["https://github.com/envoyproxy/protoc-gen-validate/archive/refs/tags/v0.6.2.tar.gz"],
+)
+
+# TODO: not needed?
+# load("@com_envoyproxy_protoc_gen_validate//bazel:repositories.bzl", "pgv_dependencies")
+# pgv_dependencies()
+
+load("@com_envoyproxy_protoc_gen_validate//:dependencies.bzl", "go_third_party")
+
+go_third_party()
 
 ### Packaging
 

@@ -5,6 +5,7 @@ package go_microservice_template.server.v1;
 option go_package = "github.com/cloneable/go-microservice-template/api/proto/server;server";
 
 import "google/api/annotations.proto";
+import "validate/validate.proto";
 
 service EchoService {
     rpc Echo(EchoRequest) returns (EchoResponse) {
@@ -16,7 +17,10 @@ service EchoService {
 }
 
 message EchoRequest {
-  string msg = 1;
+  string msg = 1 [(validate.rules).string = {
+                    pattern: "^[a-zA-Z0-9 ]+$",
+                    max_bytes: 100,
+                  }];
 }
 
 message EchoResponse {
