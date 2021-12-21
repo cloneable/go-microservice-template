@@ -2,6 +2,7 @@ package echoserver
 
 import (
 	"context"
+	"fmt"
 
 	spb "github.com/cloneable/go-microservice-template/api/proto/server"
 	"go.opentelemetry.io/otel/codes"
@@ -28,9 +29,10 @@ func (s *EchoServer) Echo(ctx context.Context, req *spb.EchoRequest) (*spb.EchoR
 	ctx, span = s.tracer.Start(ctx, "echo request")
 	defer span.End()
 
-	if err := req.Validate(); err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "validation failed")
+	if req.Msg == "error" {
+		err := fmt.Errorf("echo error")
+		span.RecordError(err, trace.WithStackTrace(true))
+		span.SetStatus(codes.Error, "request failed")
 		return nil, err
 	}
 

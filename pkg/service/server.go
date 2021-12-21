@@ -8,6 +8,7 @@ import (
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -50,11 +51,13 @@ func (s *Service) Run(ctx context.Context, opt Options) error {
 			otelgrpc.UnaryServerInterceptor(),
 			serverMetrics.UnaryServerInterceptor(),
 			grpc_zap.UnaryServerInterceptor(s.logger.Desugar()),
+			grpc_validator.UnaryServerInterceptor(),
 		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			otelgrpc.StreamServerInterceptor(),
 			serverMetrics.StreamServerInterceptor(),
 			grpc_zap.StreamServerInterceptor(s.logger.Desugar()),
+			grpc_validator.StreamServerInterceptor(),
 		)),
 	)
 
@@ -101,7 +104,7 @@ func (s *Service) Run(ctx context.Context, opt Options) error {
 
 	gatewayServer := &http.Server{
 		Addr:    fmt.Sprintf(":%d", opt.RESTPort),
-		Handler: otelhttp.NewHandler(gateway, "gateway"),
+		Handler: otelhttp.NewHandler(gateway, "gateway-http"),
 	}
 
 	s.logger.Info("Server running.")
