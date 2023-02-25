@@ -55,3 +55,7 @@ jsonnetfmt --string-style d -i *.jsonnet
 - [x] Tracing/correlation ID plumbing
 - [ ] ORM: Ent?
 - [ ] Use upx for the binary?
+
+## MacOS/ARM64
+
+TODO: `--@io_bazel_rules_docker//transitions:enable=false`

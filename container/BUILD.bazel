@@ -11,7 +11,7 @@ container_push(
     image = ":image",
     registry = "localhost:5005",
     repository = "cloneable/go-microservice-template",
-    stamp = 0,
+    stamp = "@io_bazel_rules_docker//stamp:never",
     tag = "dev",
 )
 
